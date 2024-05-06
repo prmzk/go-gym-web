@@ -7,18 +7,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAPIMutation } from "@/lib/api.hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { formSchema } from "./LogInForm.schema";
-import { useAPIMutation } from "@/lib/api.hooks";
 import { LogInParams, LogInResponse } from "./types";
 
-type Props = {
-  setToRegister: () => void;
-};
-
-const LogInForm = ({ setToRegister }: Props) => {
+const LogInForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,8 +26,14 @@ const LogInForm = ({ setToRegister }: Props) => {
   const { mutate } = useAPIMutation<LogInParams, LogInResponse>(
     "/users/login",
     {
+      noAuth: true,
       toastOption: {
-        description: "Email sent! Check your inbox for the login URL.",
+        success: {
+          description: "Email sent! Check your inbox for the login URL.",
+        },
+      },
+      onSuccess: () => {
+        form.reset();
       },
     }
   );
@@ -76,12 +79,8 @@ const LogInForm = ({ setToRegister }: Props) => {
             <p>or</p>
             <div className="w-full border-b"></div>
           </div>
-          <Button
-            size="lg"
-            className="mx-1 py-4 rounded-full w-full"
-            onClick={setToRegister}
-          >
-            Register
+          <Button size="lg" className="mx-1 py-4 rounded-full w-full" asChild>
+            <Link to="/register">Register</Link>
           </Button>
         </div>
       </form>

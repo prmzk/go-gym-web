@@ -11,12 +11,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { formSchema } from "./RegisterForm.schema";
+import { Link } from "@tanstack/react-router";
+import { useAPIMutation } from "@/lib/api.hooks";
+import { RegisterParams, RegisterResponse } from "./types";
 
-type Props = {
-  setToLogin: () => void;
-};
-
-const RegisterForm = ({ setToLogin }: Props) => {
+const RegisterForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -25,8 +24,23 @@ const RegisterForm = ({ setToLogin }: Props) => {
     },
   });
 
+  const { mutate } = useAPIMutation<RegisterParams, RegisterResponse>(
+    "/users/register",
+    {
+      noAuth: true,
+      toastOption: {
+        success: {
+          description: "Success! You can now log in.",
+        },
+      },
+      onSuccess: () => {
+        form.reset();
+      },
+    }
+  );
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    mutate(values);
   }
 
   return (
@@ -84,10 +98,9 @@ const RegisterForm = ({ setToLogin }: Props) => {
             size="lg"
             className="mx-1 py-4 rounded-full w-full pl-6 "
             variant="ghost"
-            onClick={setToLogin}
+            asChild
           >
-            {" "}
-            Log In
+            <Link to="/"> Log In</Link>
           </Button>
         </div>
       </form>

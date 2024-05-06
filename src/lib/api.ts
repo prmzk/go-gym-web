@@ -6,7 +6,6 @@ async function fetchData(request: URL | string, option?: RequestInit) {
   const response = await rawResponse.json();
 
   if (response.status === "error") {
-    console.log("here");
     throw new Error(response.message);
   }
 
