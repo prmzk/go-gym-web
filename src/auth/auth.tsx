@@ -66,17 +66,22 @@ export default function AuthProvider({
     enabled: false,
   });
 
-  const logout = useCallback(() => {
-    setToken(null);
-    setRefresh(null);
-    removeAccessToken();
-    removeRefreshToken();
-    setIsAuthenticated(false);
-    toast({
-      variant: "destructive",
-      title: "Please re-login",
-    });
-  }, [toast]);
+  const logout = useCallback(
+    (noToast?: boolean) => {
+      setToken(null);
+      setRefresh(null);
+      removeAccessToken();
+      removeRefreshToken();
+      setIsAuthenticated(false);
+      if (!noToast) {
+        toast({
+          variant: "destructive",
+          title: "Please re-login",
+        });
+      }
+    },
+    [toast]
+  );
 
   const setTokens = useCallback((accessToken: string, refreshToken: string) => {
     setToken(accessToken);

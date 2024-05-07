@@ -23,7 +23,7 @@ const LogInForm = () => {
     },
   });
 
-  const { mutate } = useAPIMutation<LogInParams, LogInResponse>(
+  const { mutate, isPending } = useAPIMutation<LogInParams, LogInResponse>(
     "/users/login",
     {
       noAuth: true,
@@ -71,6 +71,7 @@ const LogInForm = () => {
             type="submit"
             size="lg"
             className="mx-1 py-4 rounded-full bg-teal-500"
+            disabled={isPending}
           >
             Log In
           </Button>

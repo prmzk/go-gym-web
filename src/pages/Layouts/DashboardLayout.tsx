@@ -9,17 +9,15 @@ const DashboardLayout = () => {
   const navigate = Route.useNavigate();
   const auth = useAuth();
 
-  const { mutate } = useAPIMutation<null>(`/users/logout`, {
+  const { mutate, isPending } = useAPIMutation<null>(`/users/logout`, {
     disableToast: true,
+    onSettled: () => {
+      auth.logout && auth.logout(true);
+    },
   });
 
   const logout = () => {
-    mutate(null, {
-      onSuccess: () => {
-        mutate(null);
-        auth.logout && auth.logout();
-      },
-    });
+    mutate(null);
   };
 
   useEffect(() => {
@@ -38,8 +36,8 @@ const DashboardLayout = () => {
             <img src="/NGA_inv.webp" alt="NGA" width={60} height={60} />
           </Link>
         </div>
-        <Button variant="destructive" onClick={logout}>
-          Logout
+        <Button variant="destructive" onClick={logout} disabled={isPending}>
+          {isPending ? "Logging out.." : "Logout"}
         </Button>
       </div>
       <Outlet />

@@ -24,20 +24,20 @@ const RegisterForm = () => {
     },
   });
 
-  const { mutate } = useAPIMutation<RegisterParams, RegisterResponse>(
-    "/users/register",
-    {
-      noAuth: true,
-      toastOption: {
-        success: {
-          description: "Success! You can now log in.",
-        },
+  const { mutate, isPending } = useAPIMutation<
+    RegisterParams,
+    RegisterResponse
+  >("/users/register", {
+    noAuth: true,
+    toastOption: {
+      success: {
+        description: "Success! You can now log in.",
       },
-      onSuccess: () => {
-        form.reset();
-      },
-    }
-  );
+    },
+    onSuccess: () => {
+      form.reset();
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     mutate(values);
@@ -86,7 +86,12 @@ const RegisterForm = () => {
         />
 
         <div className="flex flex-col gap-4 max-w-96 mx-auto w-full">
-          <Button type="submit" size="lg" className="mx-1 py-4 rounded-full ">
+          <Button
+            type="submit"
+            size="lg"
+            className="mx-1 py-4 rounded-full "
+            disabled={isPending}
+          >
             Register
           </Button>
           <div className="px-4 flex items-center justify-center gap-2">
