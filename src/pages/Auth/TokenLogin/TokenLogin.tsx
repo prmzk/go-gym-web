@@ -16,9 +16,11 @@ const TokenLogin = () => {
       `/users/login/callback?token=${token}`,
       {
         queryKey: ["login-token", token],
-        retry: 1,
+        retry: false,
         disableToast: true,
         noAuth: true,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
       }
     );
 

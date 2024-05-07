@@ -11,6 +11,6 @@ export interface IAuthContext {
   user: User | undefined;
   token: string | null;
   refresh: string | null;
-  clearTokens?: () => void;
+  logout?: () => void;
   setTokens?: (accessToken: string, refreshToken: string) => void;
 }

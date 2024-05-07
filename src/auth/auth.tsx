@@ -45,6 +45,7 @@ export default function AuthProvider({
     },
     retry: false,
     enabled: !!token,
+    staleTime: 60 * 1000,
   });
 
   const {
@@ -54,7 +55,6 @@ export default function AuthProvider({
   } = useQuery<LogInCallbackTokenResponse>({
     queryKey: ["refresh", refresh],
     queryFn: async () => {
-      console.log("refresh");
       return await fetchData(`/users/refresh?token=${refresh}`, {
         method: "GET",
         headers: new Headers({
@@ -62,16 +62,21 @@ export default function AuthProvider({
         }),
       });
     },
+    retry: 1,
     enabled: false,
   });
 
-  const clearTokens = useCallback(() => {
+  const logout = useCallback(() => {
     setToken(null);
     setRefresh(null);
     removeAccessToken();
     removeRefreshToken();
     setIsAuthenticated(false);
-  }, []);
+    toast({
+      variant: "destructive",
+      title: "Please re-login",
+    });
+  }, [toast]);
 
   const setTokens = useCallback((accessToken: string, refreshToken: string) => {
     setToken(accessToken);
@@ -83,9 +88,9 @@ export default function AuthProvider({
 
   useEffect(() => {
     if (isErrorRefresh) {
-      clearTokens();
+      logout();
     }
-  }, [isErrorRefresh, clearTokens]);
+  }, [logout, isErrorRefresh]);
 
   useEffect(() => {
     if (userRefresh) {
@@ -99,14 +104,10 @@ export default function AuthProvider({
 
   useEffect(() => {
     if (isError && error?.message === "invalid bearer token") {
-      clearTokens();
-      toast({
-        variant: "destructive",
-        title: "Please re-login",
-      });
+      logout();
     } else if (
       (isError &&
-        (error?.message.includes("invalid") ||
+        (error?.message.includes("access") ||
           error?.message.includes("expired"))) ||
       (!token && refresh)
     ) {
@@ -115,23 +116,10 @@ export default function AuthProvider({
         removeAccessToken();
         getRefresh();
       } else {
-        clearTokens();
-        toast({
-          variant: "destructive",
-          title: "Please re-login",
-        });
+        logout();
       }
     }
-  }, [
-    clearTokens,
-    error,
-    isError,
-    toast,
-    refresh,
-    setToken,
-    getRefresh,
-    token,
-  ]);
+  }, [logout, error, isError, toast, refresh, setToken, getRefresh, token]);
 
   return (
     <AuthContext.Provider
@@ -141,7 +129,7 @@ export default function AuthProvider({
         token,
         refresh,
         setTokens,
-        clearTokens,
+        logout,
       }}
     >
       {children}

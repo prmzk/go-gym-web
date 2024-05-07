@@ -17,7 +17,7 @@ const DashboardLayout = () => {
     mutate(null, {
       onSuccess: () => {
         mutate(null);
-        auth.clearTokens && auth.clearTokens();
+        auth.logout && auth.logout();
       },
     });
   };
