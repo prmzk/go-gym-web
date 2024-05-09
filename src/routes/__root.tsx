@@ -1,4 +1,4 @@
-import { IAuthContext } from "@/auth/type";
+import { IAuthContext } from "@/lib/auth/type";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { formatRFC3339 } from "date-fns";
+import { v4 as uuid } from "uuid";
 
 const DashboardHome = () => {
   return (
@@ -16,7 +16,7 @@ const DashboardHome = () => {
               size="lg"
               className="rounded-xl w-full md:max-w-md"
               onClick={() => {
-                console.log(formatRFC3339(new Date()));
+                console.log(uuid());
               }}
             >
               Start a fresh workout 🏹

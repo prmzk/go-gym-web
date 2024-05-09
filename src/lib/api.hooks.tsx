@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect } from "react";
 import fetchData from "./api";
-import { useAuth } from "@/auth";
+import { useAuth } from "./auth";
 
 type ToastOption = {
   error?: Toast;

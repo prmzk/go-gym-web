@@ -1,5 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import DashboardWorkouts from "@/pages/Dashboard/DashboardWorkouts";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_protected/dashboard/workouts')({
-  component: () => <div>Hello /_protected/dashboard/workouts!</div>
-})
+export const Route = createFileRoute("/_protected/dashboard/workouts")({
+  component: DashboardWorkouts,
+});

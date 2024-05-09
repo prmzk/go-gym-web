@@ -4,7 +4,7 @@ import { LogInCallbackTokenResponse } from "../Login/types";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useAuth } from "@/auth";
+import { useAuth } from "@/lib/auth";
 
 const TokenLogin = () => {
   const { setTokens } = useAuth();

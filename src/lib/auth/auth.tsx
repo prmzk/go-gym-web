@@ -44,7 +44,6 @@ export default function AuthProvider({
       });
     },
     retry: false,
-    enabled: !!token,
     staleTime: 60 * 1000,
   });
 
@@ -108,20 +107,22 @@ export default function AuthProvider({
   }, [token, refetch]);
 
   useEffect(() => {
-    if (isError && error?.message === "invalid bearer token") {
-      logout();
-    } else if (
-      (isError &&
-        (error?.message.includes("access") ||
-          error?.message.includes("expired"))) ||
-      (!token && refresh)
-    ) {
-      if (refresh) {
-        setToken(null);
-        removeAccessToken();
-        getRefresh();
-      } else {
+    if (isError) {
+      console.log(error.message);
+      if (error?.message === "invalid bearer token") {
         logout();
+      } else if (
+        error?.message.includes("access") ||
+        error?.message.includes("expired") ||
+        (!token && refresh)
+      ) {
+        if (refresh) {
+          setToken(null);
+          removeAccessToken();
+          getRefresh();
+        } else {
+          logout();
+        }
       }
     }
   }, [logout, error, isError, toast, refresh, setToken, getRefresh, token]);

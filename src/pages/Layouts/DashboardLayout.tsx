@@ -1,4 +1,4 @@
-import { useAuth } from "@/auth";
+import { useAuth } from "@/lib/auth";
 import NavigationItem from "@/components/NavigationItem";
 import { Button } from "@/components/ui/button";
 import { useAPIMutation } from "@/lib/api.hooks";
