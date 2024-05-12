@@ -1,8 +1,9 @@
 import { useToast } from "@/components/ui/use-toast";
-import fetchData from "@/lib/api";
 import { LogInCallbackTokenResponse } from "@/pages/Auth/Login/types";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useCallback, useEffect, useState } from "react";
+import fetchData from "../api";
+import { useAPIQuery } from "../api.hooks";
 import {
   getAccessToken,
   getRefreshToken,
@@ -20,9 +21,9 @@ export default function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const refresh = getRefreshToken();
   const { toast } = useToast();
   const [token, setToken] = useState<string | null>(getAccessToken());
-  const [refresh, setRefresh] = useState<string | null>(getRefreshToken());
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     !!token || !!refresh
   );
@@ -30,21 +31,14 @@ export default function AuthProvider({
   const {
     data: user,
     isError,
-    error,
     refetch,
-  } = useQuery<User>({
+  } = useAPIQuery<User>("/users/me", {
     queryKey: ["me", token],
-    queryFn: async () => {
-      return await fetchData("/users/me", {
-        method: "GET",
-        headers: new Headers({
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        }),
-      });
-    },
     retry: false,
     staleTime: 60 * 1000,
+    headers: new Headers({
+      Authorization: `Bearer ${token}`,
+    }),
   });
 
   const {
@@ -68,7 +62,6 @@ export default function AuthProvider({
   const logout = useCallback(
     (noToast?: boolean) => {
       setToken(null);
-      setRefresh(null);
       removeAccessToken();
       removeRefreshToken();
       setIsAuthenticated(false);
@@ -84,23 +77,10 @@ export default function AuthProvider({
 
   const setTokens = useCallback((accessToken: string, refreshToken: string) => {
     setToken(accessToken);
-    setRefresh(refreshToken);
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
     setIsAuthenticated(true);
   }, []);
-
-  useEffect(() => {
-    if (isErrorRefresh) {
-      logout();
-    }
-  }, [logout, isErrorRefresh]);
-
-  useEffect(() => {
-    if (userRefresh) {
-      setTokens(userRefresh.accessToken, userRefresh.refreshToken);
-    }
-  }, [userRefresh, setTokens]);
 
   useEffect(() => {
     if (token) refetch();
@@ -108,24 +88,21 @@ export default function AuthProvider({
 
   useEffect(() => {
     if (isError) {
-      console.log(error.message);
-      if (error?.message === "invalid bearer token") {
-        logout();
-      } else if (
-        error?.message.includes("access") ||
-        error?.message.includes("expired") ||
-        (!token && refresh)
-      ) {
-        if (refresh) {
-          setToken(null);
-          removeAccessToken();
-          getRefresh();
-        } else {
-          logout();
-        }
-      }
+      getRefresh();
     }
-  }, [logout, error, isError, toast, refresh, setToken, getRefresh, token]);
+  }, [isError, getRefresh]);
+
+  useEffect(() => {
+    if (isErrorRefresh) {
+      logout && logout();
+    }
+  }, [logout, isErrorRefresh]);
+
+  useEffect(() => {
+    if (userRefresh) {
+      setTokens && setTokens(userRefresh.accessToken, userRefresh.refreshToken);
+    }
+  }, [userRefresh, setTokens]);
 
   return (
     <AuthContext.Provider
@@ -133,8 +110,8 @@ export default function AuthProvider({
         isAuthenticated,
         user,
         token,
-        refresh,
         setTokens,
+        getRefresh,
         logout,
       }}
     >

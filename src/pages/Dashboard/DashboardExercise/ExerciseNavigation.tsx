@@ -1,14 +1,20 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/utils.hook";
-import { Route } from "@/routes/_protected.dashboard.exercise";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useActiveWorkout } from "../DashboardActiveWorkout/activeWorkoutContext";
 import ExerciseNavigationFilterBodyPart from "./ExerciseNavigationFilterBodyPart";
 import ExerciseNavigationFilterCat from "./ExerciseNavigationFilterCat";
 import ExerciseNavigationFilterOrderBy from "./ExerciseNavigationFilterOrderBy";
 
 const ExerciseNavigation = () => {
-  const { search, bodyPart, category, orderBy } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const { isThereAnyActiveWorkout } = useActiveWorkout();
+  const { search, bodyPart, category, orderBy } = useSearch({
+    from: "/_protected/dashboard/exercise",
+  });
+
+  const navigate = useNavigate({ from: "/_protected/dashboard/exercise" });
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 600);
   const ref = useRef<HTMLDivElement>(null);
@@ -44,14 +50,23 @@ const ExerciseNavigation = () => {
 
   useEffect(() => {
     handleSearchParams({ newSearch: debouncedSearchTerm });
-  }, [debouncedSearchTerm, handleSearchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
 
   return (
     <div
       className="sticky z-10 top-0 bg-background py-2 group border-b"
       ref={ref}
     >
-      <h1 className="text-xl font-bold mb-6 ">Exercise</h1>
+      <div className="flex items-center justify-between gap-3 mb-6 ">
+        <h1 className="text-xl font-bold">Exercise</h1>
+        {isThereAnyActiveWorkout && (
+          <Button asChild>
+            <Link to="/dashboard/workouts/active">Back to Workout</Link>
+          </Button>
+        )}
+      </div>
+
       <div className="flex items-center border rounded-lg py-1">
         <p className="w-8 text-center">🔍</p>
         <Input

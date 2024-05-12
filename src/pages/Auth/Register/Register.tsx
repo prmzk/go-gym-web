@@ -15,7 +15,7 @@ import { Link } from "@tanstack/react-router";
 import { useAPIMutation } from "@/lib/api.hooks";
 import { RegisterParams, RegisterResponse } from "./types";
 
-const RegisterForm = () => {
+function RegisterForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,7 +28,6 @@ const RegisterForm = () => {
     RegisterParams,
     RegisterResponse
   >("/users/register", {
-    noAuth: true,
     toastOption: {
       success: {
         description: "Success! You can now log in.",
@@ -111,6 +110,6 @@ const RegisterForm = () => {
       </form>
     </Form>
   );
-};
+}
 
 export default RegisterForm;

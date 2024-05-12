@@ -1,14 +1,16 @@
-import { useAPIQuery } from "@/lib/api.hooks";
-import { Route } from "@/routes/_protected.dashboard.exercise";
+import { useAPIQueryAuth } from "@/lib/api.hooks";
+import { useSearch } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ExercisesData, GroupedExercisesData } from "../types";
 import ExerciseCard from "./ExerciseCard";
 import ExerciseNavigation from "./ExerciseNavigation";
 
-const DashboardExercise = () => {
-  const { search, bodyPart, category, orderBy } = Route.useSearch();
+function DashboardExercise() {
+  const { search, bodyPart, category, orderBy } = useSearch({
+    from: "/_protected/dashboard/exercise",
+  });
 
-  const { data, isPending, isSuccess } = useAPIQuery<ExercisesData>(
+  const { data, isPending, isSuccess } = useAPIQueryAuth<ExercisesData>(
     `/gym/exercises?name=${search}&category=${category}&body_part=${bodyPart}`,
     {
       queryKey: ["exercise", { search, category, bodyPart }],
@@ -61,7 +63,7 @@ const DashboardExercise = () => {
         {isSuccess && (
           <ul className="grid gap-4">
             {Object.keys(groupedData?.exercises || {}).map((key) => (
-              <li className="grid mb-6">
+              <li className="grid mb-6" key={key}>
                 <p className="border-b pb-4 text-slate-300 font-bold capitalize">
                   {key}
                 </p>
@@ -75,6 +77,6 @@ const DashboardExercise = () => {
       </div>
     </>
   );
-};
+}
 
 export default DashboardExercise;

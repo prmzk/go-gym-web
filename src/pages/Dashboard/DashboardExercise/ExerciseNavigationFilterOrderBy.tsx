@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Route } from "@/routes/_protected.dashboard.exercise";
+import { useSearch } from "@tanstack/react-router";
 import { HandleSearchParams } from "./type";
 
 type Props = {
@@ -13,7 +13,9 @@ type Props = {
 };
 
 const ExerciseNavigationFilterOrderBy = ({ handleSearchParams }: Props) => {
-  const { orderBy } = Route.useSearch();
+  const { orderBy } = useSearch({
+    from: "/_protected/dashboard/exercise",
+  });
   return (
     <Select
       onValueChange={(newOrderBy) => handleSearchParams({ newOrderBy })}

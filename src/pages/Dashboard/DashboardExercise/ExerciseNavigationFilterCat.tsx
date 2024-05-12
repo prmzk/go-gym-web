@@ -5,8 +5,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAPIQuery } from "@/lib/api.hooks";
-import { Route } from "@/routes/_protected.dashboard.exercise";
+import { useAPIQueryAuth } from "@/lib/api.hooks";
+import { useSearch } from "@tanstack/react-router";
 import { ExercisesCategoryData } from "../types";
 import { HandleSearchParams } from "./type";
 
@@ -15,13 +15,15 @@ type Props = {
 };
 
 const ExerciseNavigationFilterCat = ({ handleSearchParams }: Props) => {
-  const { category } = Route.useSearch();
+  const { category } = useSearch({
+    from: "/_protected/dashboard/exercise",
+  });
 
   const {
     data: dataCategories,
     isPending: isPendingCategories,
     isSuccess: isSuccessCategories,
-  } = useAPIQuery<ExercisesCategoryData>("/gym/exercises/categories", {
+  } = useAPIQueryAuth<ExercisesCategoryData>("/gym/exercises/categories", {
     queryKey: ["exercise-categories"],
     staleTime: 1000 * 60 * 3,
   });

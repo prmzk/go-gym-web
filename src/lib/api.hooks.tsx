@@ -17,14 +17,13 @@ type ToastOption = {
 type CustomOption = {
   toastOption?: ToastOption;
   disableToast?: boolean;
-  noAuth?: boolean;
+  headers?: Headers;
 };
 
 type UseApiQueryArgs<T> = UseQueryOptions<T> & CustomOption;
 
 function useAPIQuery<T>(url: string, options: UseApiQueryArgs<T>) {
   const { toast } = useToast();
-  const { token } = useAuth();
 
   const { isError, error, ...query } = useQuery<T>({
     queryFn: async () => {
@@ -32,11 +31,7 @@ function useAPIQuery<T>(url: string, options: UseApiQueryArgs<T>) {
         method: "GET",
         headers: new Headers({
           "Content-Type": "application/json",
-          ...(options.noAuth
-            ? {}
-            : {
-                Authorization: `Bearer ${token}`,
-              }),
+          ...(options.headers ? Object.fromEntries(options.headers) : {}),
         }),
       });
     },
@@ -44,7 +39,11 @@ function useAPIQuery<T>(url: string, options: UseApiQueryArgs<T>) {
   });
 
   useEffect(() => {
-    if (isError && !options?.disableToast) {
+    if (
+      isError &&
+      !options?.disableToast &&
+      !error?.message.includes("token")
+    ) {
       toast({
         variant: "destructive",
         description: error.message,
@@ -62,6 +61,33 @@ function useAPIQuery<T>(url: string, options: UseApiQueryArgs<T>) {
   return { isError, error, ...query };
 }
 
+function useAPIQueryAuth<T>(url: string, options: UseApiQueryArgs<T>) {
+  const { token, getRefresh } = useAuth();
+
+  const { isError, error, ...query } = useAPIQuery<T>(url, {
+    headers: new Headers({
+      Authorization: `Bearer ${token}`,
+      ...(options.headers ? Object.fromEntries(options.headers) : {}),
+    }),
+    ...options,
+  });
+
+  useEffect(() => {
+    const refreshToken = async () => {
+      if (isError && getRefresh) {
+        if (error?.message === "token") {
+          const { isError: isErrorRefresh } = await getRefresh();
+          if (!isErrorRefresh) query?.refetch();
+        }
+      }
+    };
+
+    refreshToken();
+  }, [isError, error?.message, getRefresh, query]);
+
+  return { isError, error, ...query };
+}
+
 type UseMutationArgs<TData, TReturn> = UseMutationOptions<
   TReturn,
   Error,
@@ -74,18 +100,13 @@ function useAPIMutation<TData, TReturn = unknown>(
   options: UseMutationArgs<TData, TReturn>
 ) {
   const { toast } = useToast();
-  const { token } = useAuth();
   const { isError, error, ...query } = useMutation<TReturn, Error, TData>({
     mutationFn: async (data: TData) => {
       return await fetchData(url, {
         method: "POST",
         headers: new Headers({
           "Content-Type": "application/json",
-          ...(options.noAuth
-            ? {}
-            : {
-                Authorization: `Bearer ${token}`,
-              }),
+          ...(options.headers ? Object.fromEntries(options.headers) : {}),
         }),
         body: JSON.stringify(data),
       });
@@ -114,4 +135,20 @@ function useAPIMutation<TData, TReturn = unknown>(
   return { isError, error, ...query };
 }
 
-export { useAPIMutation, useAPIQuery };
+function useAPIMutationAuth<TData, TReturn = unknown>(
+  url: string,
+  options: UseMutationArgs<TData, TReturn>
+) {
+  const { token } = useAuth();
+  const { isError, error, ...query } = useAPIMutation<TData, TReturn>(url, {
+    headers: new Headers({
+      Authorization: `Bearer ${token}`,
+      ...(options.headers ? Object.fromEntries(options.headers) : {}),
+    }),
+    ...options,
+  });
+
+  return { isError, error, ...query };
+}
+
+export { useAPIMutation, useAPIQuery, useAPIQueryAuth, useAPIMutationAuth };

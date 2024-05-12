@@ -5,8 +5,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAPIQuery } from "@/lib/api.hooks";
-import { Route } from "@/routes/_protected.dashboard.exercise";
+import { useAPIQueryAuth } from "@/lib/api.hooks";
+import { useSearch } from "@tanstack/react-router";
 import { ExercisesBodyPartData } from "../types";
 import { HandleSearchParams } from "./type";
 
@@ -15,13 +15,15 @@ type Props = {
 };
 
 const ExerciseNavigationFilterBodyPart = ({ handleSearchParams }: Props) => {
-  const { bodyPart } = Route.useSearch();
+  const { bodyPart } = useSearch({
+    from: "/_protected/dashboard/exercise",
+  });
 
   const {
     data: dataBodyParts,
     isPending: isPendingBodyParts,
     isSuccess: isSuccessBodyParts,
-  } = useAPIQuery<ExercisesBodyPartData>("/gym/exercises/bodyparts", {
+  } = useAPIQueryAuth<ExercisesBodyPartData>("/gym/exercises/bodyparts", {
     queryKey: ["exercise-bodyparts"],
     staleTime: 1000 * 60 * 3,
   });

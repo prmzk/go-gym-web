@@ -1,15 +1,14 @@
-import { useAPIQuery } from "@/lib/api.hooks";
-import { Route } from "@/routes/login";
-import { LogInCallbackTokenResponse } from "../Login/types";
 import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useAPIQuery } from "@/lib/api.hooks";
 import { useAuth } from "@/lib/auth";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { LogInCallbackTokenResponse } from "../Login/types";
 
-const TokenLogin = () => {
+function TokenLogin() {
   const { setTokens } = useAuth();
-  const { token } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const { token } = useSearch({ from: "/login" });
+  const navigate = useNavigate();
 
   const { data, isFetching, isError, isSuccess } =
     useAPIQuery<LogInCallbackTokenResponse>(
@@ -18,7 +17,6 @@ const TokenLogin = () => {
         queryKey: ["login-token", token],
         retry: false,
         disableToast: true,
-        noAuth: true,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
       }
@@ -69,6 +67,6 @@ const TokenLogin = () => {
       </div>
     </div>
   );
-};
+}
 
 export default TokenLogin;

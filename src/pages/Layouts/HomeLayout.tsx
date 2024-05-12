@@ -1,6 +1,6 @@
 import { Outlet } from "@tanstack/react-router";
 
-const HomeLayout = () => {
+function HomeLayout() {
   return (
     <div className="h-svh">
       <div className="w-full py-32 container h-full flex flex-col space-y-14 justify-center">
@@ -16,6 +16,6 @@ const HomeLayout = () => {
       </div>
     </div>
   );
-};
+}
 
 export default HomeLayout;

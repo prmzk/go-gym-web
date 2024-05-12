@@ -1,7 +1,37 @@
 import { Button } from "@/components/ui/button";
-import { v4 as uuid } from "uuid";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "@tanstack/react-router";
+import { formatRFC3339 } from "date-fns";
+import { useState } from "react";
+import { useActiveWorkout } from "../DashboardActiveWorkout/activeWorkoutContext";
+import { generateActiveWorkout } from "../DashboardActiveWorkout/activeWorkoutContext/activeWorkoutStorage";
 
-const DashboardHome = () => {
+function DashboardHome() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [name, setName] = useState("");
+  const { setWorkout, isThereAnyActiveWorkout } = useActiveWorkout();
+  const navigate = useNavigate();
+
+  const newActiveWorkout = () => {
+    setWorkout(
+      generateActiveWorkout({
+        created_at: formatRFC3339(new Date()),
+        name,
+        start_time: formatRFC3339(new Date()),
+      })
+    );
+    navigate({ to: "/dashboard/workouts/active" });
+    setModalOpen(false);
+  };
+
   return (
     <>
       <div>
@@ -15,23 +45,39 @@ const DashboardHome = () => {
             <Button
               size="lg"
               className="rounded-xl w-full md:max-w-md"
-              onClick={() => {
-                console.log(uuid());
-              }}
+              disabled={isThereAnyActiveWorkout}
+              onClick={() => setModalOpen(true)}
             >
-              Start a fresh workout 🏹
+              {isThereAnyActiveWorkout
+                ? "Workout in progress!"
+                : "Start a fresh workout 🏹"}
             </Button>
           </div>
         </div>
-        <div className="py-12 relative h-96"> </div>
-        <div className="py-12 relative h-96"> </div>
-        <div className="py-12 relative h-96"> </div>
-        <div className="py-12 relative h-96"> </div>
-        <div className="py-12 relative h-96"> </div>
-        <div className="py-12 relative h-96"> </div>
       </div>
+
+      <Dialog open={modalOpen} onOpenChange={(open) => setModalOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Enter workout name</DialogTitle>
+            <DialogDescription>
+              <Input
+                placeholder="Morning Workout"
+                className="text-lg h-12 my-4 rounded-lg"
+                onChange={(e) => setName(e.target.value)}
+              />
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setModalOpen(false)} variant="ghost">
+              Cancel
+            </Button>
+            <Button onClick={newActiveWorkout}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
-};
+}
 
 export default DashboardHome;

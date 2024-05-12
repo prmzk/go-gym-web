@@ -7,9 +7,9 @@ const tokenSchema = z.object({
 });
 
 export const Route = createFileRoute("/login")({
-  component: TokenLogin,
   validateSearch: (search) => tokenSchema.parse(search),
   onError: () => {
     throw redirect({ to: "/" });
   },
+  component: TokenLogin,
 });

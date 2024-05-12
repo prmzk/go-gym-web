@@ -1,3 +1,6 @@
+import { LogInCallbackTokenResponse } from "@/pages/Auth/Login/types";
+import { RefetchOptions, QueryObserverResult } from "@tanstack/react-query";
+
 export type User = {
   id: string;
   name: string;
@@ -7,10 +10,12 @@ export type User = {
 };
 
 export interface IAuthContext {
-  isAuthenticated: boolean;
+  isAuthenticated: boolean | undefined;
   user: User | undefined;
   token: string | null;
-  refresh: string | null;
   logout?: (noToast?: boolean) => void;
   setTokens?: (accessToken: string, refreshToken: string) => void;
+  getRefresh?: (
+    options?: RefetchOptions
+  ) => Promise<QueryObserverResult<LogInCallbackTokenResponse, Error>>;
 }

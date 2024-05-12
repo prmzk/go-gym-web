@@ -15,7 +15,7 @@ import { z } from "zod";
 import { formSchema } from "./LogInForm.schema";
 import { LogInParams, LogInResponse } from "./types";
 
-const LogInForm = () => {
+function LogInForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -26,7 +26,6 @@ const LogInForm = () => {
   const { mutate, isPending } = useAPIMutation<LogInParams, LogInResponse>(
     "/users/login",
     {
-      noAuth: true,
       toastOption: {
         success: {
           description: "Email sent! Check your inbox for the login URL.",
@@ -87,6 +86,6 @@ const LogInForm = () => {
       </form>
     </Form>
   );
-};
+}
 
 export default LogInForm;

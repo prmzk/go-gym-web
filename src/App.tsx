@@ -1,9 +1,9 @@
-import { useAuth } from "./auth";
+import { useAuth } from "./lib/auth";
 import { RouterProvider } from "@tanstack/react-router";
 import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AuthProvider from "./auth/auth";
+import AuthProvider from "./lib/auth";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 

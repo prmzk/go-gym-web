@@ -17,9 +17,10 @@ import { Route as HomeLayoutImport } from './routes/_homeLayout'
 import { Route as HomeLayoutIndexImport } from './routes/_homeLayout.index'
 import { Route as HomeLayoutRegisterImport } from './routes/_homeLayout.register'
 import { Route as ProtectedDashboardIndexImport } from './routes/_protected.dashboard.index'
-import { Route as ProtectedDashboardWorkoutsImport } from './routes/_protected.dashboard.workouts'
 import { Route as ProtectedDashboardProfileImport } from './routes/_protected.dashboard.profile'
 import { Route as ProtectedDashboardExerciseImport } from './routes/_protected.dashboard.exercise'
+import { Route as ProtectedDashboardWorkoutsIndexImport } from './routes/_protected.dashboard.workouts.index'
+import { Route as ProtectedDashboardWorkoutsActiveImport } from './routes/_protected.dashboard.workouts.active'
 
 // Create/Update Routes
 
@@ -53,13 +54,6 @@ const ProtectedDashboardIndexRoute = ProtectedDashboardIndexImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 
-const ProtectedDashboardWorkoutsRoute = ProtectedDashboardWorkoutsImport.update(
-  {
-    path: '/dashboard/workouts',
-    getParentRoute: () => ProtectedRoute,
-  } as any,
-)
-
 const ProtectedDashboardProfileRoute = ProtectedDashboardProfileImport.update({
   path: '/dashboard/profile',
   getParentRoute: () => ProtectedRoute,
@@ -71,6 +65,18 @@ const ProtectedDashboardExerciseRoute = ProtectedDashboardExerciseImport.update(
     getParentRoute: () => ProtectedRoute,
   } as any,
 )
+
+const ProtectedDashboardWorkoutsIndexRoute =
+  ProtectedDashboardWorkoutsIndexImport.update({
+    path: '/dashboard/workouts/',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
+
+const ProtectedDashboardWorkoutsActiveRoute =
+  ProtectedDashboardWorkoutsActiveImport.update({
+    path: '/dashboard/workouts/active',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -104,12 +110,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedDashboardProfileImport
       parentRoute: typeof ProtectedImport
     }
-    '/_protected/dashboard/workouts': {
-      preLoaderRoute: typeof ProtectedDashboardWorkoutsImport
-      parentRoute: typeof ProtectedImport
-    }
     '/_protected/dashboard/': {
       preLoaderRoute: typeof ProtectedDashboardIndexImport
+      parentRoute: typeof ProtectedImport
+    }
+    '/_protected/dashboard/workouts/active': {
+      preLoaderRoute: typeof ProtectedDashboardWorkoutsActiveImport
+      parentRoute: typeof ProtectedImport
+    }
+    '/_protected/dashboard/workouts/': {
+      preLoaderRoute: typeof ProtectedDashboardWorkoutsIndexImport
       parentRoute: typeof ProtectedImport
     }
   }
@@ -122,8 +132,9 @@ export const routeTree = rootRoute.addChildren([
   ProtectedRoute.addChildren([
     ProtectedDashboardExerciseRoute,
     ProtectedDashboardProfileRoute,
-    ProtectedDashboardWorkoutsRoute,
     ProtectedDashboardIndexRoute,
+    ProtectedDashboardWorkoutsActiveRoute,
+    ProtectedDashboardWorkoutsIndexRoute,
   ]),
   LoginRoute,
 ])

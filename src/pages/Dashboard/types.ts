@@ -5,6 +5,9 @@ export type Exercise = {
   updated_at: string;
   category: string;
   body_part: string;
+
+  rest_time?: number;
+  notes?: string;
 };
 
 export type ExercisesData = {
