@@ -94,7 +94,7 @@ type UseMutationArgs<TData, TReturn> = UseMutationOptions<
   TData
 > &
   CustomOption & {
-    method: "POST" | "PUT" | "DELETE";
+    method?: "POST" | "PUT" | "DELETE";
   };
 
 function useAPIMutation<TData, TReturn = unknown>(
