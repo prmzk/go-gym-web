@@ -39,6 +39,7 @@ export default function AuthProvider({
     headers: new Headers({
       Authorization: `Bearer ${token}`,
     }),
+    enabled: isAuthenticated,
   });
 
   const {
