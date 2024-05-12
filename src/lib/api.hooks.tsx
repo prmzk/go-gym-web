@@ -93,7 +93,9 @@ type UseMutationArgs<TData, TReturn> = UseMutationOptions<
   Error,
   TData
 > &
-  CustomOption;
+  CustomOption & {
+    method: "POST" | "PUT" | "DELETE";
+  };
 
 function useAPIMutation<TData, TReturn = unknown>(
   url: string,
@@ -103,7 +105,7 @@ function useAPIMutation<TData, TReturn = unknown>(
   const { isError, error, ...query } = useMutation<TReturn, Error, TData>({
     mutationFn: async (data: TData) => {
       return await fetchData(url, {
-        method: "POST",
+        method: options.method ?? "POST",
         headers: new Headers({
           "Content-Type": "application/json",
           ...(options.headers ? Object.fromEntries(options.headers) : {}),

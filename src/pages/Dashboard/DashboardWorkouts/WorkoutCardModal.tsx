@@ -2,13 +2,18 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogContentSpinner,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAPIQueryAuth } from "@/lib/api.hooks";
+import { useToast } from "@/components/ui/use-toast";
+import { useAPIMutationAuth, useAPIQueryAuth } from "@/lib/api.hooks";
+import { useAuth } from "@/lib/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useState } from "react";
 import { FinishedWorkout, WorkoutDetail } from "../types";
 
 type Props = {
@@ -18,6 +23,10 @@ type Props = {
 };
 
 function WorkoutCardModal({ workout, modalOpen, setModalOpen }: Props) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { token } = useAuth();
+  const q = useQueryClient();
+  const { toast } = useToast();
   const { data, isFetching } = useAPIQueryAuth<WorkoutDetail>(
     `/gym/workouts/${workout.id}`,
     {
@@ -26,27 +35,47 @@ function WorkoutCardModal({ workout, modalOpen, setModalOpen }: Props) {
     }
   );
 
+  const { mutate: deleteWorkoutMutate } = useAPIMutationAuth(
+    `/gym/workouts/${workout.id}`,
+    {
+      method: "DELETE",
+      onSuccess: () => {
+        toast({
+          title: "Deleted",
+        });
+        q.invalidateQueries({
+          queryKey: ["workouts", "all", token],
+        });
+        setConfirmDelete(false);
+      },
+    }
+  );
+
+  const deleteWorkout = () => {
+    deleteWorkoutMutate(null);
+  };
+
   return (
     <Dialog open={modalOpen} onOpenChange={(open) => setModalOpen(open)}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{workout.name}</DialogTitle>
-          <DialogDescription>
-            {format(workout.start_time, "EEEE, d MMMM yyyy 'at' HH:mm")}
-          </DialogDescription>
-          <DialogDescription></DialogDescription>
-        </DialogHeader>
-        <div>
-          {isFetching ? (
-            <p>Loading...</p>
-          ) : (
+      {!isFetching ? (
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{workout.name}</DialogTitle>
+            <DialogDescription>
+              {format(workout.start_time, "EEEE, d MMMM yyyy 'at' HH:mm")}
+            </DialogDescription>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <div style={{ maxHeight: "70svh" }} className="overflow-y-auto">
             <div className="grid gap-4">
               {data?.workout_exercises.map((exercise) => (
                 <div key={exercise.workout_exercise_id} className="grid gap-1">
-                  <p>{exercise.exercise_name}</p>
+                  <p className="font-bold underline">
+                    {exercise.exercise_name}
+                  </p>
                   <div className="grid gap-2">
                     {exercise.sets.map((set) => (
-                      <div key={set.set_id} className="flex items-center gap-2">
+                      <div key={set.set_id} className="flex items-center gap-1">
                         {set.weight ? <p>{set.weight} Kg</p> : null}
                         {set.deducted_weight ? (
                           <p>-{set.deducted_weight} Kg</p>
@@ -63,14 +92,35 @@ function WorkoutCardModal({ workout, modalOpen, setModalOpen }: Props) {
                 </div>
               ))}
             </div>
-          )}
-        </div>
-        <DialogFooter>
-          <Button onClick={() => setModalOpen(false)} variant="ghost">
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+          </div>
+          <DialogFooter className="items-center justify-between">
+            {!confirmDelete ? (
+              <Button
+                onClick={() => setConfirmDelete(true)}
+                variant="ghost"
+                className="text-red-700"
+                size="sm"
+              >
+                Delete Workout
+              </Button>
+            ) : (
+              <Button
+                onClick={deleteWorkout}
+                variant="ghost"
+                className="text-red-700"
+                size="sm"
+              >
+                Click this button again to confirm
+              </Button>
+            )}
+            <Button onClick={() => setModalOpen(false)} variant="ghost">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      ) : (
+        <DialogContentSpinner />
+      )}
     </Dialog>
   );
 }

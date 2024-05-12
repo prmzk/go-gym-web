@@ -62,14 +62,23 @@ const ExerciseSets = ({ exercise }: Props) => {
     if (workout?.sets) {
       sets = [...workout.sets];
     }
+
+    let newSet;
+
+    if (!exerciseSet?.length) {
+      newSet = categoryAddSet[
+        exercise?.exercise_details?.category as keyof CategoryTitle
+      ]({});
+    } else {
+      newSet = exerciseSet[exerciseSet.length - 1];
+    }
+
     sets.push({
+      ...newSet,
       id: uuid(),
       workout_exercise_id: exercise.id,
       created_at: formatRFC3339(new Date()),
       isDone: false,
-      ...categoryAddSet[
-        exercise?.exercise_details?.category as keyof CategoryTitle
-      ]({}),
     });
 
     setWorkout({
