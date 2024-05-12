@@ -1,3 +1,5 @@
+import { Workout } from "./DashboardActiveWorkout/activeWorkoutContext/type";
+
 export type Exercise = {
   id: string;
   name: string;
@@ -40,4 +42,44 @@ export type ExerciseBodyPart = {
 
 export type ExercisesBodyPartData = {
   body_parts: ExerciseBodyPart[];
+};
+
+export type FinishedWorkout = Workout & {
+  id: string;
+  updated_at: string;
+};
+
+export type FinishedWorkoutData = {
+  workouts: FinishedWorkout[];
+};
+
+export type WorkoutDetail = {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  start_time: string;
+  end_time: string;
+  workout_exercises: WorkoutExercise[];
+};
+
+export type WorkoutExercise = {
+  workout_exercise_id: string;
+  workout_exercise_created_at: string;
+  workout_exercise_updated_at: string;
+  exercise_id: string;
+  exercise_name: string;
+  category_name: string;
+  body_part_name: string;
+  sets: Set[];
+};
+
+export type Set = {
+  set_id: string;
+  weight: number | null;
+  reps: number | null;
+  deducted_weight: number | null;
+  duration: number | null;
+  set_created_at: string;
+  set_updated_at: string;
 };
