@@ -1,31 +1,32 @@
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useOutsideClick } from "@/lib/utils.hook";
-import { CheckIcon, TrashIcon } from "@radix-ui/react-icons";
+import { TrashIcon } from "@radix-ui/react-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useActiveWorkout } from "./activeWorkoutContext";
-import { LastSet, Set, WorkoutExercise } from "./activeWorkoutContext/type";
-import { formatRFC3339 } from "date-fns";
+import { SetTemplate, Template, WorkoutExerciseTemplate } from "./type";
 
 type Props = {
-  set: Set;
+  set: SetTemplate;
   index: number;
-  exercise: WorkoutExercise;
+  exercise: WorkoutExerciseTemplate;
   categoryProp: "weight" | "deducted_weight" | "reps" | "duration";
   categorySecondaryProp: "" | "reps";
   title: string;
   titleSecondary: string;
+
+  template: Template | null;
+  setTemplate: (template: Template | null) => void;
 };
 
 const ExerciseSet = ({
   set,
   index,
-  exercise,
   categoryProp,
   categorySecondaryProp,
   titleSecondary,
+  setTemplate,
+  template,
 }: Props) => {
-  const { setWorkout, workout } = useActiveWorkout();
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingSecondary, setIsEditingSecondary] = useState(false);
   const [value, setValue] = useState(`${set[categoryProp]}`);
@@ -40,28 +41,24 @@ const ExerciseSet = ({
   const refSecondary = useRef<HTMLInputElement | null>(null);
 
   const removeSet = () => {
-    let sets: Set[] = [];
-    if (workout?.sets) {
-      sets = [...workout.sets];
+    let sets: SetTemplate[] = [];
+    if (template?.sets) {
+      sets = [...template.sets];
     }
 
     sets = sets.filter((setEl) => setEl.id !== set.id);
 
-    setWorkout({
-      ...workout,
-      isTemplate: {
-        ...workout?.isTemplate,
-        isChangedSets: true,
-      },
+    setTemplate({
+      ...template,
       sets,
     });
   };
 
   const editSet = useCallback(
     (newVal: string) => {
-      let sets: Set[] = [];
-      if (workout?.sets) {
-        sets = [...workout.sets];
+      let sets: SetTemplate[] = [];
+      if (template?.sets) {
+        sets = [...template.sets];
       }
 
       const newSet = { ...set };
@@ -72,24 +69,20 @@ const ExerciseSet = ({
         sets[index] = newSet;
       }
 
-      setWorkout({
-        ...workout,
-        isTemplate: {
-          ...workout?.isTemplate,
-          isChangedSets: true,
-        },
+      setTemplate({
+        ...template,
         sets,
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [workout]
+    [template]
   );
 
   const editSetSecondary = useCallback(
     (newVal: string) => {
-      let sets: Set[] = [];
-      if (workout?.sets) {
-        sets = [...workout.sets];
+      let sets: SetTemplate[] = [];
+      if (template?.sets) {
+        sets = [...template.sets];
       }
 
       if (!categorySecondaryProp) return;
@@ -102,58 +95,14 @@ const ExerciseSet = ({
         sets[index] = newSet;
       }
 
-      setWorkout({
-        ...workout,
-        isTemplate: {
-          ...workout?.isTemplate,
-          isChangedSets: true,
-        },
+      setTemplate({
+        ...template,
         sets,
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [workout]
+    [template]
   );
-
-  const doneUndoneSet = useCallback(() => {
-    if (!+value && titleSecondary && !+valueSecondary) {
-      return;
-    } else if (!+value && !titleSecondary) {
-      return;
-    } else {
-      let sets: Set[] = [];
-      let lastSet: LastSet | null = null;
-      if (workout?.sets) {
-        sets = [...workout.sets];
-      }
-
-      const newSet = { ...set };
-      const oldVal = newSet.isDone;
-      newSet.isDone = !oldVal;
-
-      if (newSet.isDone && exercise.exercise_details.rest_time) {
-        lastSet = {
-          exercise_name: exercise.exercise_details.name,
-          rest_done: formatRFC3339(
-            new Date(Date.now() + exercise.exercise_details.rest_time * 1000)
-          ),
-          rest_time: exercise.exercise_details.rest_time,
-        };
-      }
-
-      const index = sets.findIndex((setEl) => setEl.id === set.id);
-      if (index !== -1) {
-        sets[index] = newSet;
-      }
-
-      setWorkout({
-        ...workout,
-        sets,
-        lastSet: lastSet ? lastSet : workout?.lastSet,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workout, titleSecondary, value, valueSecondary]);
 
   useEffect(() => {
     if (isEditing) {
@@ -248,15 +197,6 @@ const ExerciseSet = ({
               </div>
             ) : null}
           </div>
-        </div>
-        <div
-          className={cn(
-            "w-8 md:w-12 flex items-center justify-center cursor-pointer rounded-full shrink-0 hover:scale-105",
-            set.isDone ? "bg-teal-400" : ""
-          )}
-          onClick={doneUndoneSet}
-        >
-          <CheckIcon className="h-5 w-5" />
         </div>
         <div
           className="w-8 md:w-12 flex items-center justify-center cursor-pointer hover:bg-red-900 rounded-full shrink-0"

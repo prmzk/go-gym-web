@@ -18,6 +18,11 @@ export type ActiveWorkout = {
   workout_exercises?: WorkoutExercise[];
   sets?: Set[];
   lastSet?: LastSet;
+  isTemplate?: {
+    isChangedExercises?: boolean;
+    isChangedSets?: boolean;
+    templateId?: string;
+  };
 };
 
 export type Workout = {
@@ -32,6 +37,7 @@ export type WorkoutExercise = {
   exercise_id: string;
   created_at: string;
   exercise_details: Exercise;
+  order_no: number;
 };
 
 export type Set = {
@@ -44,6 +50,7 @@ export type Set = {
   duration: number | null;
   isDone: boolean;
   prevSet?: PrevSet;
+  order_no: number;
 };
 
 export type PrevSet = {
@@ -51,6 +58,7 @@ export type PrevSet = {
   reps: number | null;
   deducted_weight: number | null;
   duration: number | null;
+  order_no: number;
 };
 
 export type EditExerciseUserInput = {

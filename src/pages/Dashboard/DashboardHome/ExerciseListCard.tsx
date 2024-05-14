@@ -23,20 +23,17 @@ import {
   TrashIcon,
 } from "@radix-ui/react-icons";
 import { useState } from "react";
-import { useActiveWorkout } from "../DashboardActiveWorkout/activeWorkoutContext";
-import {
-  EditExerciseUserInput,
-  WorkoutExercise,
-  Set,
-} from "../DashboardActiveWorkout/activeWorkoutContext/type";
+import { EditExerciseUserInput } from "../DashboardActiveWorkout/activeWorkoutContext/type";
+import { SetTemplate, Template, WorkoutExerciseTemplate } from "./type";
 import ExerciseSets from "./ExerciseSets";
 
 type Props = {
-  exercise: WorkoutExercise;
+  exercise: WorkoutExerciseTemplate;
+  template: Template | null;
+  setTemplate: (template: Template | null) => void;
 };
 
-const ExerciseCard = ({ exercise }: Props) => {
-  const { setWorkout, workout } = useActiveWorkout();
+const ExerciseListCard = ({ exercise, setTemplate, template }: Props) => {
   const [notes] = useState(exercise?.exercise_details.notes || "");
   const [restTime, setRestTime] = useState(
     exercise?.exercise_details.rest_time || 0
@@ -44,38 +41,33 @@ const ExerciseCard = ({ exercise }: Props) => {
   const [restTimeModalOpen, setRestTimeModalOpen] = useState(false);
 
   const removeExerciseWorkout = () => {
-    let workout_exercises: WorkoutExercise[] = [];
-    if (workout?.workout_exercises) {
-      workout_exercises = [...workout.workout_exercises];
+    let workout_exercises: WorkoutExerciseTemplate[] = [];
+    if (template?.workout_exercises) {
+      workout_exercises = [...template.workout_exercises];
     }
 
-    let sets: Set[] = [];
-    if (workout?.sets) {
-      sets = [...workout.sets];
+    let sets: SetTemplate[] = [];
+    if (template?.sets) {
+      sets = [...template.sets];
     }
 
     workout_exercises = workout_exercises.filter(
       (workout_exercise) => workout_exercise.id !== exercise.id
     );
 
-    sets = sets.filter((set) => set.workout_exercise_id !== exercise.id);
+    sets = sets.filter((set) => set.template_exercise_id !== exercise.id);
 
-    setWorkout({
-      ...workout,
-      isTemplate: {
-        ...workout?.isTemplate,
-        isChangedExercises: true,
-        isChangedSets: true,
-      },
+    setTemplate({
+      ...template,
       workout_exercises,
       sets,
     });
   };
 
   const moveUpExerciseWorkout = () => {
-    let workout_exercises: WorkoutExercise[] = [];
-    if (workout?.workout_exercises) {
-      workout_exercises = [...workout.workout_exercises];
+    let workout_exercises: WorkoutExerciseTemplate[] = [];
+    if (template?.workout_exercises) {
+      workout_exercises = [...template.workout_exercises];
     }
 
     const index = workout_exercises.findIndex(
@@ -88,21 +80,16 @@ const ExerciseCard = ({ exercise }: Props) => {
     workout_exercises[index] = workout_exercises[index - 1];
     workout_exercises[index - 1] = temp;
 
-    setWorkout({
-      ...workout,
-      isTemplate: {
-        ...workout?.isTemplate,
-        isChangedExercises: true,
-        isChangedSets: true,
-      },
+    setTemplate({
+      ...template,
       workout_exercises,
     });
   };
 
   const moveDownExerciseWorkout = () => {
-    let workout_exercises: WorkoutExercise[] = [];
-    if (workout?.workout_exercises) {
-      workout_exercises = [...workout.workout_exercises];
+    let workout_exercises: WorkoutExerciseTemplate[] = [];
+    if (template?.workout_exercises) {
+      workout_exercises = [...template.workout_exercises];
     }
 
     const index = workout_exercises.findIndex(
@@ -115,13 +102,8 @@ const ExerciseCard = ({ exercise }: Props) => {
     workout_exercises[index] = workout_exercises[index + 1];
     workout_exercises[index + 1] = temp;
 
-    setWorkout({
-      ...workout,
-      isTemplate: {
-        ...workout?.isTemplate,
-        isChangedExercises: true,
-        isChangedSets: true,
-      },
+    setTemplate({
+      ...template,
       workout_exercises,
     });
   };
@@ -135,9 +117,9 @@ const ExerciseCard = ({ exercise }: Props) => {
     if (notes) inputData.notes = notes;
     if (restTime) inputData.rest_time = restTime;
 
-    let workout_exercises: WorkoutExercise[] = [];
-    if (workout?.workout_exercises) {
-      workout_exercises = [...workout.workout_exercises];
+    let workout_exercises: WorkoutExerciseTemplate[] = [];
+    if (template?.workout_exercises) {
+      workout_exercises = [...template.workout_exercises];
     }
 
     workout_exercises.forEach((workout_exercise) => {
@@ -149,8 +131,8 @@ const ExerciseCard = ({ exercise }: Props) => {
       }
     });
 
-    setWorkout({
-      ...workout,
+    setTemplate({
+      ...template,
       workout_exercises,
     });
 
@@ -200,7 +182,11 @@ const ExerciseCard = ({ exercise }: Props) => {
           </DropdownMenu>
         </div>
 
-        <ExerciseSets exercise={exercise} />
+        <ExerciseSets
+          exercise={exercise}
+          setTemplate={setTemplate}
+          template={template}
+        />
       </Card>
 
       <Dialog
@@ -241,4 +227,4 @@ const ExerciseCard = ({ exercise }: Props) => {
   );
 };
 
-export default ExerciseCard;
+export default ExerciseListCard;

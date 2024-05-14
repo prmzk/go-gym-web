@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogContentSpinner,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -14,7 +13,7 @@ import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useState } from "react";
-import { FinishedWorkout, WorkoutDetail } from "../types";
+import { FinishedWorkout, GetWorkoutDetail } from "../types";
 
 type Props = {
   workout: FinishedWorkout;
@@ -27,7 +26,7 @@ function WorkoutCardModal({ workout, modalOpen, setModalOpen }: Props) {
   const { token } = useAuth();
   const q = useQueryClient();
   const { toast } = useToast();
-  const { data, isFetching } = useAPIQueryAuth<WorkoutDetail>(
+  const { data, isFetching } = useAPIQueryAuth<GetWorkoutDetail>(
     `/gym/workouts/${workout.id}`,
     {
       queryKey: ["workouts", workout.id],
@@ -56,71 +55,67 @@ function WorkoutCardModal({ workout, modalOpen, setModalOpen }: Props) {
   };
 
   return (
-    <Dialog open={modalOpen} onOpenChange={(open) => setModalOpen(open)}>
-      {!isFetching ? (
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{workout.name}</DialogTitle>
-            <DialogDescription>
-              {format(workout.start_time, "EEEE, d MMMM yyyy 'at' HH:mm")}
-            </DialogDescription>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
-          <div style={{ maxHeight: "70svh" }} className="overflow-y-auto">
-            <div className="grid gap-4">
-              {data?.workout_exercises.map((exercise) => (
-                <div key={exercise.workout_exercise_id} className="grid gap-1">
-                  <p className="font-bold underline">
-                    {exercise.exercise_name}
-                  </p>
-                  <div className="grid gap-2">
-                    {exercise.sets.map((set) => (
-                      <div key={set.set_id} className="flex items-center gap-1">
-                        {set.weight ? <p>{set.weight} Kg</p> : null}
-                        {set.deducted_weight ? (
-                          <p>-{set.deducted_weight} Kg</p>
-                        ) : null}
-                        {!set.weight && !set.deducted_weight && set.reps ? (
-                          <p>{set.reps} Reps</p>
-                        ) : null}
-                        {set.duration ? <p>{set.duration}</p> : null}
-                        {set.weight ? <p>x</p> : null}
-                        <p>{set.weight && set.reps}</p>
-                      </div>
-                    ))}
-                  </div>
+    <Dialog
+      open={!isFetching && modalOpen}
+      onOpenChange={(open) => setModalOpen(open)}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{workout.name}</DialogTitle>
+          <DialogDescription>
+            {format(workout.start_time, "EEEE, d MMMM yyyy 'at' HH:mm")}
+          </DialogDescription>
+        </DialogHeader>
+        <div style={{ maxHeight: "70svh" }} className="overflow-y-auto">
+          <div className="grid gap-4">
+            {data?.workout_exercises.map((exercise) => (
+              <div key={exercise.workout_exercise_id} className="grid gap-1">
+                <p className="font-bold underline">{exercise.exercise_name}</p>
+                <div className="grid gap-2">
+                  {exercise.sets.map((set) => (
+                    <div key={set.set_id} className="flex items-center gap-1">
+                      {set.weight ? <p>{set.weight} Kg</p> : null}
+                      {set.deducted_weight ? (
+                        <p>-{set.deducted_weight} Kg</p>
+                      ) : null}
+                      {!set.weight && !set.deducted_weight && set.reps ? (
+                        <p>{set.reps} Reps</p>
+                      ) : null}
+                      {set.duration ? <p>{set.duration}</p> : null}
+                      {set.weight ? <p>x</p> : null}
+                      <p>{set.weight && set.reps}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-          <DialogFooter className="items-center justify-between">
-            {!confirmDelete ? (
-              <Button
-                onClick={() => setConfirmDelete(true)}
-                variant="ghost"
-                className="text-red-700"
-                size="sm"
-              >
-                Delete Workout
-              </Button>
-            ) : (
-              <Button
-                onClick={deleteWorkout}
-                variant="ghost"
-                className="text-red-700"
-                size="sm"
-              >
-                Click this button again to confirm
-              </Button>
-            )}
-            <Button onClick={() => setModalOpen(false)} variant="ghost">
-              Close
+        </div>
+        <DialogFooter className="items-center justify-between gap-3">
+          {!confirmDelete ? (
+            <Button
+              onClick={() => setConfirmDelete(true)}
+              variant="ghost"
+              className="text-red-700"
+              size="sm"
+            >
+              Delete Workout
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      ) : (
-        <DialogContentSpinner />
-      )}
+          ) : (
+            <Button
+              onClick={deleteWorkout}
+              variant="ghost"
+              className="text-red-700"
+              size="sm"
+            >
+              Click this button again to confirm
+            </Button>
+          )}
+          <Button onClick={() => setModalOpen(false)} variant="ghost">
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

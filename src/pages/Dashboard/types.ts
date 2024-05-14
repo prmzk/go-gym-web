@@ -53,17 +53,17 @@ export type FinishedWorkoutData = {
   workouts: FinishedWorkout[];
 };
 
-export type WorkoutDetail = {
+export type GetWorkoutDetail = {
   id: string;
   name: string;
   created_at: string;
   updated_at: string;
   start_time: string;
   end_time: string;
-  workout_exercises: WorkoutExercise[];
+  workout_exercises: GetWorkoutExerciseDetail[];
 };
 
-export type WorkoutExercise = {
+export type GetWorkoutExerciseDetail = {
   workout_exercise_id: string;
   workout_exercise_created_at: string;
   workout_exercise_updated_at: string;
@@ -71,10 +71,10 @@ export type WorkoutExercise = {
   exercise_name: string;
   category_name: string;
   body_part_name: string;
-  sets: Set[];
+  sets: GetSetDetail[];
 };
 
-export type Set = {
+export type GetSetDetail = {
   set_id: string;
   weight: number | null;
   reps: number | null;

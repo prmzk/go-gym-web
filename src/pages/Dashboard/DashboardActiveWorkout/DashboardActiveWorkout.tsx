@@ -92,7 +92,7 @@ function DashboardActiveWorkout() {
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
           </DialogHeader>
-          <DialogFooter className="mx-auto mt-4">
+          <DialogFooter className="mx-auto mt-4 gap-3">
             <Button onClick={() => setCancelOpen(false)}>Cancel</Button>
             <Button onClick={deleteActiveWorkout} variant="destructive">
               Confirm

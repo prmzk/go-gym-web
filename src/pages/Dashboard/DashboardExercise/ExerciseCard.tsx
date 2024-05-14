@@ -64,28 +64,39 @@ const ExerciseCard = ({ exercise }: Props) => {
           reps: prevSet.reps ?? null,
           deducted_weight: prevSet.deducted_weight ?? null,
           duration: prevSet.duration ?? null,
+          order_no: prevSet.order_no,
           isDone: false,
           prevSet,
         });
       });
     }
 
+    const order_no = workout_exercises.length
+      ? workout_exercises[workout_exercises.length - 1].order_no + 1
+      : 1;
+
     workout_exercises.push({
       id: we_id,
       exercise_id: exercise.id,
       created_at: formatRFC3339(new Date()),
       exercise_details: exercise,
+      order_no,
     });
 
     setWorkout({
       ...workout,
+      isTemplate: {
+        ...workout?.isTemplate,
+        isChangedExercises: true,
+        isChangedSets: true,
+      },
       sets,
       workout_exercises,
     });
   };
 
   return (
-    <Card className="py-4 px-2 rounded-none border-t-0 border-l-0 border-r-0 flex items-center justify-between cursor-pointer hover:brightness-50 ">
+    <Card className="py-4 px-2 rounded-none border-t-0 border-l-0 border-r-0 flex flex-col md:flex-row md:items-center justify-between cursor-pointer gap-4">
       <div>
         <p className="text-lg font-bold">{exercise.name}</p>
         <div className="*:capitalize flex gap-2 items-center">

@@ -1,7 +1,9 @@
 function DashboardProfile() {
   return (
-    <div>
-      <h1>Dashboard</h1>
+    <div className="py-12">
+      <div className="flex items-center justify-between gap-3 mb-6 ">
+        <h1 className="text-2xl font-bold">Profile</h1>
+      </div>
     </div>
   );
 }

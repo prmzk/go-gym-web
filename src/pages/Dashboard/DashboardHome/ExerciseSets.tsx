@@ -1,11 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { formatRFC3339 } from "date-fns";
 import { useMemo } from "react";
 import { v4 as uuid } from "uuid";
-import { useActiveWorkout } from "./activeWorkoutContext";
-import { Set, WorkoutExercise } from "./activeWorkoutContext/type";
-import ExerciseSet from "./ExerciseSet";
 import {
   categoryAddSet,
   categoryProps,
@@ -13,15 +9,17 @@ import {
   categorySecondaryTitle,
   categoryTitle,
   CategoryTitle,
-} from "./ExerciseSet.utils";
+} from "../DashboardActiveWorkout/ExerciseSet.utils";
+import { SetTemplate, Template, WorkoutExerciseTemplate } from "./type";
+import ExerciseSet from "./ExerciseSet";
 
 type Props = {
-  exercise: WorkoutExercise;
+  exercise: WorkoutExerciseTemplate;
+  template: Template | null;
+  setTemplate: (template: Template | null) => void;
 };
 
-const ExerciseSets = ({ exercise }: Props) => {
-  const { setWorkout, workout } = useActiveWorkout();
-
+const ExerciseSets = ({ exercise, setTemplate, template }: Props) => {
   const categoryProp = useMemo(
     () =>
       categoryProps[
@@ -52,15 +50,15 @@ const ExerciseSets = ({ exercise }: Props) => {
   );
 
   const exerciseSet = useMemo(() => {
-    return workout?.sets?.filter(
-      (set) => set.workout_exercise_id === exercise.id
+    return template?.sets?.filter(
+      (set) => set.template_exercise_id === exercise.id
     );
-  }, [workout, exercise.id]);
+  }, [template, exercise.id]);
 
   const addSet = () => {
-    let sets: Set[] = [];
-    if (workout?.sets) {
-      sets = [...workout.sets];
+    let sets: SetTemplate[] = [];
+    if (template?.sets) {
+      sets = [...template.sets];
     }
 
     let newSet;
@@ -78,18 +76,12 @@ const ExerciseSets = ({ exercise }: Props) => {
     sets.push({
       ...newSet,
       id: uuid(),
-      workout_exercise_id: exercise.id,
-      created_at: formatRFC3339(new Date()),
-      isDone: false,
+      template_exercise_id: exercise.id,
       order_no,
     });
 
-    setWorkout({
-      ...workout,
-      isTemplate: {
-        ...workout?.isTemplate,
-        isChangedSets: true,
-      },
+    setTemplate({
+      ...template,
       sets,
     });
   };
@@ -122,9 +114,6 @@ const ExerciseSets = ({ exercise }: Props) => {
         <div className="w-8 shrink-0 md:w-12 flex items-center justify-center">
           <div className="h-5 w-5"></div>
         </div>
-        <div className="w-8 shrink-0 md:w-12 flex items-center justify-center">
-          <div className="h-5 w-5"></div>
-        </div>
       </div>
       <div className="transition-all">
         {exerciseSet?.map((set, i) => (
@@ -137,6 +126,8 @@ const ExerciseSets = ({ exercise }: Props) => {
             categorySecondaryProp={categorySecondaryProp}
             title={title}
             titleSecondary={titleSecondary}
+            setTemplate={setTemplate}
+            template={template}
           />
         ))}
       </div>
