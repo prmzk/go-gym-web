@@ -19,6 +19,7 @@ import RestTimer from "./RestTimer";
 function DashboardActiveWorkout() {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [finishOpen, setFinishOpen] = useState(false);
+  const [congratsOpen, setCongratsOpen] = useState(false);
   const navigate = useNavigate();
   const {
     deleteActiveWorkout: deleteActiveWorkoutMethod,
@@ -29,6 +30,13 @@ function DashboardActiveWorkout() {
   const deleteActiveWorkout = () => {
     setWorkout(null);
     deleteActiveWorkoutMethod();
+  };
+
+  const closeCongrats = () => {
+    setCongratsOpen(false);
+    deleteActiveWorkout();
+    setWorkout(null);
+    navigate({ to: "/dashboard" });
   };
 
   useEffect(() => {
@@ -101,8 +109,34 @@ function DashboardActiveWorkout() {
         </DialogContent>
       </Dialog>
 
+      {/* DIALOG CANCEL */}
+      <Dialog
+        open={congratsOpen}
+        onOpenChange={(open) => {
+          if (!open) closeCongrats();
+          else setCancelOpen(open);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>💪💪💪 NICE 💪💪💪</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center">
+            <p>Good job on finishing your workout!</p>
+            <p>Keep up the good work! 🚀</p>
+          </div>
+          <DialogFooter className="mx-auto mt-4 gap-3">
+            <Button onClick={closeCongrats}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* DIALOG FINISH */}
-      <FinishWorkout finishOpen={finishOpen} setFinishOpen={setFinishOpen} />
+      <FinishWorkout
+        finishOpen={finishOpen}
+        setFinishOpen={setFinishOpen}
+        setCongratsOpen={setCongratsOpen}
+      />
     </>
   );
 }

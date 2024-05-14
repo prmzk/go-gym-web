@@ -6,24 +6,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 import { useAPIMutationAuth } from "@/lib/api.hooks";
 import { formatRFC3339 } from "date-fns";
+import { useEffect, useState } from "react";
 import { useActiveWorkout } from "./activeWorkoutContext";
 import { ActiveWorkout } from "./activeWorkoutContext/type";
-import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "@tanstack/react-router";
 
 type Props = {
   finishOpen: boolean;
   setFinishOpen: (finishOpen: boolean) => void;
+  setCongratsOpen: (congratsOpen: boolean) => void;
 };
 
-function FinishWorkout({ finishOpen, setFinishOpen }: Props) {
+function FinishWorkout({ finishOpen, setFinishOpen, setCongratsOpen }: Props) {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [confirmMode, setConfirmMode] = useState(false);
-  const { workout, deleteActiveWorkout, setWorkout } = useActiveWorkout();
+  const { workout } = useActiveWorkout();
   const [normalizedWorkout, setNormalizedWorkout] =
     useState<ActiveWorkout | null>(workout);
 
@@ -38,10 +37,8 @@ function FinishWorkout({ finishOpen, setFinishOpen }: Props) {
   >(`/gym/templates/change-values/${workout?.isTemplate?.templateId}`, {});
 
   const { mutate } = useAPIMutationAuth<ActiveWorkout, null>("/gym/workouts", {
-    onSuccess: () => {
-      deleteActiveWorkout();
-      setWorkout(null);
-      navigate({ to: "/dashboard" });
+    onSuccess: async () => {
+      setCongratsOpen(true);
     },
   });
 
